@@ -12,9 +12,6 @@ import java.util.UUID;
 @RequestMapping(path = "reservations")
 public class ReservationController {
 
-    //TODO:
-    // add check whether the reserved room has enough seats for the team, if not notify user
-
     private final ReservationService reservationService;
 
     private final ReservationMapper reservationMapper;
@@ -60,23 +57,32 @@ public class ReservationController {
                 .toList();
     }
 
-    @PostMapping("users/{user_id}")
-    public ReservationDto addReservation(@PathVariable("user_id") UUID userId, @RequestBody ReservationDto reservationDto) {
+    @PostMapping
+    public ReservationDto addReservation(@RequestBody ReservationDto reservationDto) {
         return reservationMapper.toDto(reservationService.createReservation(reservationMapper.fromDto(reservationDto)));
     }
 
-    @PutMapping(path = "users/{user_id}/{reservation_id}")
-    public ReservationDto updateReservation(@PathVariable("user_id") UUID userId, @PathVariable("reservation_id") UUID reservationId, @RequestBody ReservationDto reservationDto) {
-        return reservationMapper.toDto(reservationService.updateReservation(userId, reservationId, reservationMapper.fromDto(reservationDto)));
+    @PutMapping("{reservation_id}")
+    public ReservationDto updateReservation(@PathVariable("reservation_id") UUID reservationId, @RequestBody ReservationDto reservationDto) {
+        return reservationMapper.toDto(reservationService.updateReservation(reservationId, reservationMapper.fromDto(reservationDto)));
     }
 
-    @DeleteMapping(path = "users/{user_id}/{reservation_id}")
-    public void deleteReservation(@PathVariable("user_id") UUID userId, @PathVariable("reservation_id") UUID id) {
-        reservationService.deleteReservation(userId, id);
+    @DeleteMapping("{reservation_id}")
+    public void deleteReservation(@PathVariable("reservation_id") UUID id) {
+        reservationService.deleteReservation(id);
     }
 
-    @GetMapping(path = "users/{user_id}/{reservation_id}")
-    public ReservationDto getReservation(@PathVariable("user_id") UUID userId, @PathVariable("reservation_id") UUID id) {
+    @GetMapping("{reservation_id}")
+    public ReservationDto getReservation(@PathVariable("reservation_id") UUID id) {
         return reservationMapper.toDto(reservationService.getReservation(id).orElse(null));
+    }
+
+    @GetMapping("/my-reservations")
+    public List<ReservationDto> getCurrentUserReservations() {
+        return reservationService
+                .getCurrentUserReservations()
+                .stream()
+                .map(reservationMapper::toDto)
+                .toList();
     }
 }

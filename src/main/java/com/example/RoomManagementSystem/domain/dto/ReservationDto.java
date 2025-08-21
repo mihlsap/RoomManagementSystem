@@ -7,6 +7,10 @@ public record ReservationDto(
         UUID id,
         String title,
         String description,
-        LocalDateTime date
+        LocalDateTime start,
+        LocalDateTime end,
+        UUID ownerId,
+        UUID teamId,
+        UUID roomId
 ) {
 }

@@ -2,10 +2,14 @@ package com.example.RoomManagementSystem.services.impl;
 
 import com.example.RoomManagementSystem.domain.dto.UserDto;
 import com.example.RoomManagementSystem.domain.entities.Reservation;
+import com.example.RoomManagementSystem.domain.entities.Room;
+import com.example.RoomManagementSystem.domain.entities.Team;
 import com.example.RoomManagementSystem.repositories.ReservationRepository;
+import com.example.RoomManagementSystem.repositories.RoomRepository;
 import com.example.RoomManagementSystem.repositories.TeamRepository;
 import com.example.RoomManagementSystem.services.ReservationService;
 import com.example.RoomManagementSystem.services.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,21 +19,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 // TODO:
-//  block unauthenticated users from accessing the resources,
-//  block unauthenticated users from modifying and deleting reservations,
-//  create Dockerfile,
-//  integrate keycloak,
-//  integrate google calendar api
+//  integrate google calendar api,
+//  allow adding reservations only when the given room is available at a given time
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
 
+    private final RoomRepository roomRepository;
+
+    private final TeamRepository teamRepository;
+
     private final UserService userService;
 
-    public ReservationServiceImpl(ReservationRepository reservationRepository, UserService userService) {
+    public ReservationServiceImpl(ReservationRepository reservationRepository, RoomRepository roomRepository, TeamRepository teamRepository, UserService userService) {
         this.reservationRepository = reservationRepository;
+        this.roomRepository = roomRepository;
+        this.teamRepository = teamRepository;
         this.userService = userService;
     }
 
@@ -38,31 +45,43 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.findAll();
     }
 
+    @Transactional
     @Override
     public Reservation createReservation(Reservation reservation) {
 
         UserDto currentUser = userService.getCurrentUser();
 
-        if (reservation.getId() != null)
-            throw new IllegalStateException("Reservation already has an id!");
+        if (Objects.isNull(reservation))
+            throw new IllegalArgumentException("Reservation cannot be null!");
 
         if (reservation.getTitle() == null)
             throw new IllegalStateException("Reservation title is required!");
 
-        if (reservation.getOwnerId() == null)
-            throw new IllegalStateException("Reservation owner id is required!");
+        if (reservation.getStart() == null)
+            throw new IllegalStateException("Reservation start date is required!");
 
-        if (reservation.getDate() == null)
-            throw new IllegalStateException("Reservation Date is required!");
+        if (reservation.getEnd() == null)
+            throw new IllegalStateException("Reservation end date is required!");
 
-        if (reservation.getTeamId() == null)
-            throw new IllegalStateException("Reservation team is required!");
+        if (reservation.getRoomId() == null)
+            throw new IllegalStateException("Reservation room number is required!");
+
+        if (reservation.getEnd().isBefore(reservation.getStart()))
+            throw new IllegalStateException("Reservation cannot end before it starts!");
+
+        Room chosenRoom = roomRepository.findById(reservation.getRoomId()).orElse(null);
+        Team userTeam = teamRepository.findById(currentUser.teamId()).orElse(null);
+        assert chosenRoom != null;
+        assert userTeam != null;
+        if (userTeam.getSize() > chosenRoom.getSeats())
+            System.err.println("Room may not accommodate whole team!");
 
         return reservationRepository.save(new Reservation(
                 null,
                 reservation.getTitle(),
                 reservation.getDescription(),
-                reservation.getDate(),
+                reservation.getStart(),
+                reservation.getEnd(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 currentUser.teamId(),
@@ -71,23 +90,14 @@ public class ReservationServiceImpl implements ReservationService {
         ));
     }
 
+    @Transactional
     @Override
-    public Reservation updateReservation(UUID userId, UUID id, Reservation reservation) {
+    public Reservation updateReservation(UUID id, Reservation reservation) {
 
         UserDto currentUser = userService.getCurrentUser();
 
-        if (!Objects.equals(userId, currentUser.id()))
-            throw new IllegalStateException("Cannot modify other users' reservations!");
-
-        if (reservation.getId() == null)
-            throw new IllegalStateException("Reservation id is required!");
-
-        if (!Objects.equals(id, reservation.getId()))
-            throw new IllegalStateException("Reservation id does not match!");
-
         Reservation existingReservation = reservationRepository
-                .findById(reservation
-                        .getId())
+                .findById(id)
                 .orElseThrow(
                         () -> new IllegalArgumentException("Reservation not found!")
                 );
@@ -95,12 +105,29 @@ public class ReservationServiceImpl implements ReservationService {
         if (!Objects.equals(existingReservation.getOwnerId(), currentUser.id()))
             throw new IllegalArgumentException("Cannot modify other users' reservations!");
 
-        existingReservation.setTitle(reservation.getTitle());
-        existingReservation.setDescription(reservation.getDescription());
-        existingReservation.setDate(reservation.getDate());
-        existingReservation.setRoomId(reservation.getRoomId());
-        existingReservation.setTeamId(reservation.getTeamId());
-        existingReservation.setOwnerId(reservation.getOwnerId());
+        if ((reservation.getStart() != null && reservation.getEnd() != null
+                && reservation.getEnd().isBefore(reservation.getStart())
+        ) || (reservation.getStart() != null && reservation.getEnd() == null
+                    && existingReservation.getEnd().isBefore(reservation.getStart())
+        ) || (reservation.getStart() == null && reservation.getEnd() != null
+                    && reservation.getEnd().isBefore(existingReservation.getStart())
+        )) {
+            throw new IllegalArgumentException("Reservation cannot end before it starts!");
+        }
+        if (reservation.getTitle() != null)
+            existingReservation.setTitle(reservation.getTitle());
+        if (reservation.getDescription() != null)
+            existingReservation.setDescription(reservation.getDescription());
+        if (reservation.getStart() != null)
+            existingReservation.setStart(reservation.getStart());
+        if (reservation.getEnd() != null)
+            existingReservation.setEnd(reservation.getEnd());
+        if (reservation.getRoomId() != null)
+            existingReservation.setRoomId(reservation.getRoomId());
+        if (reservation.getTeamId() != null)
+            existingReservation.setTeamId(reservation.getTeamId());
+        if (Objects.equals(reservation.getOwnerId(), currentUser.id()))
+            existingReservation.setOwnerId(reservation.getOwnerId());
         existingReservation.setUpdated(LocalDateTime.now());
 
         return reservationRepository.save(existingReservation);
@@ -111,13 +138,11 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.findById(id);
     }
 
+    @Transactional
     @Override
-    public void deleteReservation(UUID userId, UUID id) {
+    public void deleteReservation(UUID id) {
 
         UserDto currentUser = userService.getCurrentUser();
-
-        if (!Objects.equals(userId, currentUser.id()))
-            throw new IllegalArgumentException("Cannot modify other users' reservations!");
 
         Reservation existingReservation = reservationRepository
                 .findById(id)
@@ -133,8 +158,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<Reservation> getUserReservations(UUID id) {
-        UserDto currentUser = userService.getCurrentUser();
-        return reservationRepository.findByOwnerId(currentUser.id());
+        return reservationRepository.findByOwnerId(id);
     }
 
     @Override
@@ -145,5 +169,11 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<Reservation> getRoomReservations(UUID id) {
         return reservationRepository.findByRoomId(id);
+    }
+
+    @Override
+    public List<Reservation> getCurrentUserReservations() {
+        UserDto currentUser = userService.getCurrentUser();
+        return reservationRepository.findByOwnerId(currentUser.id());
     }
 }

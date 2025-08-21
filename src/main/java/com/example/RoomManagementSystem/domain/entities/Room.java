@@ -14,22 +14,22 @@ public class Room {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "number", nullable = false, updatable = false)
-    private int number;
+    @Column(name = "number", nullable = false)
+    private Integer number;
 
     @Column(name = "floor", nullable = false, updatable = false)
-    private int floor;
+    private Integer floor;
 
-    @Column(name = "size", nullable = false, updatable = false)
+    @Column(name = "size", nullable = false)
     private RoomSize size;
 
     @Column(name = "seats", nullable = false)
-    private int seats;
+    private Integer seats;
 
     public Room() {
     }
 
-    public Room(UUID id, int number, int floor, RoomSize size, int seats) {
+    public Room(UUID id, Integer number, Integer floor, RoomSize size, Integer seats) {
         this.id = id;
         this.number = number;
         this.floor = floor;
@@ -45,19 +45,19 @@ public class Room {
         this.id = id;
     }
 
-    public int getNumber() {
+    public Integer getNumber() {
         return number;
     }
 
-    public void setNumber(int number) {
+    public void setNumber(Integer number) {
         this.number = number;
     }
 
-    public int getFloor() {
+    public Integer getFloor() {
         return floor;
     }
 
-    public void setFloor(int floor) {
+    public void setFloor(Integer floor) {
         this.floor = floor;
     }
 
@@ -69,11 +69,11 @@ public class Room {
         this.size = size;
     }
 
-    public int getSeats() {
+    public Integer getSeats() {
         return seats;
     }
 
-    public void setSeats(int seats) {
+    public void setSeats(Integer seats) {
         this.seats = seats;
     }
 
@@ -81,7 +81,7 @@ public class Room {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Room room = (Room) o;
-        return number == room.number && floor == room.floor && seats == room.seats && Objects.equals(id, room.id) && size == room.size;
+        return Objects.equals(id, room.id) && Objects.equals(number, room.number) && Objects.equals(floor, room.floor) && size == room.size && Objects.equals(seats, room.seats);
     }
 
     @Override

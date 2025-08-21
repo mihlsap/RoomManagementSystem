@@ -21,8 +21,11 @@ public class Reservation {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "date", nullable = false)
-    private LocalDateTime date;
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime start;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime end;
 
     @Column(name = "created", nullable = false, updatable = false)
     private LocalDateTime created;
@@ -30,8 +33,7 @@ public class Reservation {
     @Column(name = "updated", nullable = false)
     private LocalDateTime updated;
 
-    //TODO change team and room to be fetched by id
-    @JoinColumn(name = "team", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = false)
     private UUID teamId;
 
     @JoinColumn(name = "owner_id", referencedColumnName = "sub",  nullable = false)
@@ -43,11 +45,12 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(UUID id, String title, String description, LocalDateTime date, LocalDateTime created, LocalDateTime updated, UUID teamId, UUID ownerId, UUID roomId) {
+    public Reservation(UUID id, String title, String description, LocalDateTime start, LocalDateTime end, LocalDateTime created, LocalDateTime updated, UUID teamId, UUID ownerId, UUID roomId) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.date = date;
+        this.start = start;
+        this.end = end;
         this.created = created;
         this.updated = updated;
         this.teamId = teamId;
@@ -79,12 +82,20 @@ public class Reservation {
         this.description = description;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public LocalDateTime getStart() {
+        return start;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    public LocalDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
     }
 
     public LocalDateTime getCreated() {
@@ -131,12 +142,12 @@ public class Reservation {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Reservation that = (Reservation) o;
-        return Objects.equals(id, that.id) && Objects.equals(title, that.title) && Objects.equals(description, that.description) && Objects.equals(date, that.date) && Objects.equals(created, that.created) && Objects.equals(updated, that.updated) && Objects.equals(teamId, that.teamId) && Objects.equals(ownerId, that.ownerId) && Objects.equals(roomId, that.roomId);
+        return Objects.equals(id, that.id) && Objects.equals(title, that.title) && Objects.equals(description, that.description) && Objects.equals(start, that.start) && Objects.equals(end, that.end) && Objects.equals(created, that.created) && Objects.equals(updated, that.updated) && Objects.equals(teamId, that.teamId) && Objects.equals(ownerId, that.ownerId) && Objects.equals(roomId, that.roomId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, description, date, created, updated, teamId, ownerId, roomId);
+        return Objects.hash(id, title, description, start, end, created, updated, teamId, ownerId, roomId);
     }
 
     @Override
@@ -145,7 +156,8 @@ public class Reservation {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", date=" + date +
+                ", start=" + start +
+                ", end=" + end +
                 ", created=" + created +
                 ", updated=" + updated +
                 ", teamId=" + teamId +

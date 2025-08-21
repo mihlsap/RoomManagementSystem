@@ -16,12 +16,13 @@ public class ReservationMapperImpl implements ReservationMapper {
                 reservationDto.id(),
                 reservationDto.title(),
                 reservationDto.description(),
-                reservationDto.date(),
+                reservationDto.start(),
+                reservationDto.end(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                null,
-                null,
-                null
+                reservationDto.teamId(),
+                reservationDto.ownerId(),
+                reservationDto.roomId()
         );
     }
 
@@ -31,7 +32,11 @@ public class ReservationMapperImpl implements ReservationMapper {
                 reservation.getId(),
                 reservation.getTitle(),
                 reservation.getDescription(),
-                reservation.getDate()
+                reservation.getStart(),
+                reservation.getEnd(),
+                reservation.getOwnerId(),
+                reservation.getTeamId(),
+                reservation.getRoomId()
         );
     }
 }

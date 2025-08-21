@@ -16,7 +16,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
-    container_name: keycloak_rms
+    container_name: keycloak
     command:
       - start-dev
     ports:
@@ -32,31 +32,37 @@ services:
       KC_DB_PASSWORD: postgres
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-#      KC_HTTP_PORT: 8085
-#      KC_HOSTNAME_URL: http://localhost:8080
-#      KC_HOSTNAME_ADMIN_URL: http://localhost:8080
-#      KC_HOSTNAME_STRICT_BACKCHANNEL: true
-#      KC_HTTP_RELATIVE_PATH: /
-#      KC_HTTP_ENABLED: true
-#      KC_HEALTH_ENABLED: true
-#      KC_METRICS_ENABLED: true
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
     depends_on:
       - db
     networks:
       - app-network
     restart: always
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    healthcheck:
-#      test: [ 'CMD-SHELL',
-#              '[ -f /tmp/HealthCheck.java ]
-#              || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable {
-#              System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0])
-#              .openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java
-#              http://localhost:8085/auth/health/live' ]
-#      interval: 5s
-#      timeout: 5s
-#      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rms_app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/rms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/RoomManagementSystem
+    depends_on:
+      db:
+        condition: service_started
+        restart: true
+      keycloak:
+        condition: service_started
+        restart: true
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
 
 networks:
   app-network:

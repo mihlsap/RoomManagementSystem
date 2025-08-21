@@ -14,13 +14,15 @@ public interface ReservationService {
 
     Reservation createReservation(Reservation reservation);
 
-    Reservation updateReservation(UUID userId, UUID id, Reservation reservation);
+    Reservation updateReservation(UUID id, Reservation reservation);
 
     Optional<Reservation> getReservation(UUID id);
 
-    void deleteReservation(UUID userId, UUID id);
+    void deleteReservation(UUID id);
 
     List<Reservation> getTeamReservations(UUID id);
 
     List<Reservation> getRoomReservations(UUID id);
+
+    List<Reservation> getCurrentUserReservations();
 }

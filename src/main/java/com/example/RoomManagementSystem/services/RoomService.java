@@ -7,9 +7,13 @@ import java.util.UUID;
 
 public interface RoomService {
 
-    List<Room> getAllRooms(UUID id);
+    List<Room> getAllRooms();
+
+    Room getRoomById(UUID id);
 
     Room addRoom(Room room);
 
     Room updateRoom(UUID id, Room room);
+
+    void deleteRoom(UUID id);
 }

@@ -14,16 +14,16 @@ public class Team {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "size")
-    private int size;
+    @Column(name = "size", nullable = false)
+    private Integer size;
 
     public Team() {
     }
 
-    public Team(UUID id, String name, int size) {
+    public Team(UUID id, String name, Integer size) {
         this.id = id;
         this.name = name;
         this.size = size;
@@ -45,11 +45,11 @@ public class Team {
         this.name = name;
     }
 
-    public int getSize() {
+    public Integer getSize() {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize(Integer size) {
         this.size = size;
     }
 
@@ -57,7 +57,7 @@ public class Team {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Team team = (Team) o;
-        return size == team.size && Objects.equals(id, team.id) && Objects.equals(name, team.name);
+        return Objects.equals(size, team.size) && Objects.equals(id, team.id) && Objects.equals(name, team.name);
     }
 
     @Override
