@@ -1,12 +1,7 @@
 package com.example.RoomManagementSystem.services.impl;
 
 import com.example.RoomManagementSystem.domain.dto.UserDto;
-import com.example.RoomManagementSystem.domain.entities.Team;
-import com.example.RoomManagementSystem.repositories.TeamRepository;
 import com.example.RoomManagementSystem.services.UserService;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
-import org.keycloak.representations.AccessToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;

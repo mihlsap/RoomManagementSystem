@@ -114,20 +114,28 @@ public class ReservationServiceImpl implements ReservationService {
         )) {
             throw new IllegalArgumentException("Reservation cannot end before it starts!");
         }
+
         if (reservation.getTitle() != null)
             existingReservation.setTitle(reservation.getTitle());
+
         if (reservation.getDescription() != null)
             existingReservation.setDescription(reservation.getDescription());
+
         if (reservation.getStart() != null)
             existingReservation.setStart(reservation.getStart());
+
         if (reservation.getEnd() != null)
             existingReservation.setEnd(reservation.getEnd());
+
         if (reservation.getRoomId() != null)
             existingReservation.setRoomId(reservation.getRoomId());
+
         if (reservation.getTeamId() != null)
             existingReservation.setTeamId(reservation.getTeamId());
+
         if (Objects.equals(reservation.getOwnerId(), currentUser.id()))
             existingReservation.setOwnerId(reservation.getOwnerId());
+
         existingReservation.setUpdated(LocalDateTime.now());
 
         return reservationRepository.save(existingReservation);

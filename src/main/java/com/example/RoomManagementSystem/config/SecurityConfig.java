@@ -42,7 +42,7 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
 
         Converter<Jwt, Collection<GrantedAuthority>> realmRoleConverter = new KeycloakRealmRoleConverter();
-        Converter<Jwt, Collection<GrantedAuthority>> clientRoleConverter = new KeycloakClientRoleConverter("my-client"); //TODO change this placeholder
+        Converter<Jwt, Collection<GrantedAuthority>> clientRoleConverter = new DynamicClientRoleConverter();
 
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Collection<GrantedAuthority> realmRoles = realmRoleConverter.convert(jwt);
