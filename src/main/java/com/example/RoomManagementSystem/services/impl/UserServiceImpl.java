@@ -31,9 +31,6 @@ public class UserServiceImpl implements UserService {
 
         Jwt accessToken = jwtAuthenticationToken.getToken();
 
-        // TODO
-        //  add check whether user has a team assigned, if not throw error
-
         if (accessToken.getClaimAsString("preferred_username") == null || accessToken.getClaimAsString("preferred_username").isEmpty())
             throw new IllegalStateException("No username found!");
         if (accessToken.getClaimAsString("email") == null || accessToken.getClaimAsString("email").isEmpty())
