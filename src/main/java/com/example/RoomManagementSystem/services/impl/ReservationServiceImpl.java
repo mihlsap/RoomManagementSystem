@@ -54,7 +54,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         validateInput(reservation);
 
-        if (!isTimeSlotAvailable(reservation.getStart(), reservation.getEnd(), reservation.getRoomId()))
+        if (isTimeSlotAvailable(reservation.getStart(), reservation.getEnd(), reservation.getRoomId()))
             throw new IllegalStateException("Time slot is not available for chosen room!");
 
         Room chosenRoom = roomRepository
@@ -68,7 +68,7 @@ public class ReservationServiceImpl implements ReservationService {
         if (userTeam.getSize() > chosenRoom.getSeats())
             System.out.println("Room may not accommodate whole team!");
 
-        if (!doesTeamAlreadyHaveAMeeting(reservation.getStart(), reservation.getEnd(), userTeam.getId()))
+        if (doesTeamAlreadyHaveAMeeting(reservation.getStart(), reservation.getEnd(), userTeam.getId()))
             System.out.println("Team already has a meeting during that time!");
 
         return reservationRepository.save(new Reservation(
@@ -116,14 +116,14 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException("Reservation cannot end before it starts!");
         }
 
-        if (!isTimeSlotAvailable(newStart, newEnd, existingReservation.getRoomId(), id)) {
+        if (isTimeSlotAvailable(newStart, newEnd, existingReservation.getRoomId(), id)) {
             throw new IllegalStateException("Time slot is not available for chosen room!");
         }
 
         existingReservation.setStart(newStart);
         existingReservation.setEnd(newEnd);
 
-        if (!doesTeamAlreadyHaveAMeeting(reservation.getStart(), reservation.getEnd(), currentUser.teamId()))
+        if (doesTeamAlreadyHaveAMeeting(reservation.getStart(), reservation.getEnd(), currentUser.teamId()))
             System.out.println("Team already has a meeting during that time!");
 
         return reservationRepository.save(existingReservation);
@@ -179,7 +179,7 @@ public class ReservationServiceImpl implements ReservationService {
     private boolean isTimeSlotAvailable(LocalDateTime start, LocalDateTime end, UUID roomId) {
         return getRoomReservations(roomId)
                 .stream()
-                .noneMatch(reservation ->
+                .anyMatch(reservation ->
                         isOverlapping(start, end, reservation));
     }
 
@@ -187,7 +187,7 @@ public class ReservationServiceImpl implements ReservationService {
         return getRoomReservations(roomId)
                 .stream()
                 .filter(reservation -> !reservation.getId().equals(reservationId))
-                .noneMatch(reservation -> isOverlapping(start, end, reservation));
+                .anyMatch(reservation -> isOverlapping(start, end, reservation));
     }
 
     private void validateInput(Reservation reservation) {
@@ -218,6 +218,6 @@ public class ReservationServiceImpl implements ReservationService {
     private boolean doesTeamAlreadyHaveAMeeting(LocalDateTime start, LocalDateTime end, UUID teamId) {
         return getTeamReservations(teamId)
                 .stream()
-                .noneMatch(reservation -> isOverlapping(start, end, reservation));
+                .anyMatch(reservation -> isOverlapping(start, end, reservation));
     }
 }
