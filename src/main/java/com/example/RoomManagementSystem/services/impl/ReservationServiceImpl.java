@@ -20,7 +20,6 @@ import java.util.UUID;
 
 // TODO:
 //  integrate google calendar api,
-//  allow adding reservations only when the given room is available at a given time
 //  use lombok,
 //  change controllers to return page, not list
 
