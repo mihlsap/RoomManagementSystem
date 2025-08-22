@@ -26,4 +26,39 @@ public interface ReservationService {
     List<Reservation> getRoomReservations(UUID id);
 
     List<Reservation> getCurrentUserReservations();
+
+// TODO:
+//  maybe later implement these methods
+
+//    List<Reservation> getReservationsByDate(LocalDateTime date);
+//
+//    List<Reservation> getUserReservationsByDate(LocalDateTime date, UUID id);
+//
+//    List<Reservation> getTeamReservationsByDate(LocalDateTime date, UUID id);
+//
+//    List<Reservation> getRoomReservationsByDate(LocalDateTime date,  UUID id);
+//
+//    List<Reservation> getTodayReservations();
+//
+//    List<Reservation> getTodayUserReservations(UUID id);
+//
+//    List<Reservation> getTodayTeamReservations(UUID id);
+//
+//    List<Reservation> getTodayRoomReservations(UUID id);
+//
+//    List<Reservation> getWeeklyReservations(LocalDateTime date);
+//
+//    List<Reservation> getWeeklyUserReservations(LocalDateTime date, UUID id);
+//
+//    List<Reservation> getWeeklyTeamReservations(LocalDateTime date);
+//
+//    List<Reservation> getWeeklyRoomReservations(LocalDateTime date);
+//
+//    List<Reservation> getMonthlyReservations(LocalDateTime date);
+//
+//    List<Reservation> getMonthlyUserReservations(LocalDateTime date);
+//
+//    List<Reservation> getMonthlyTeamReservations(LocalDateTime date);
+//
+//    List<Reservation> getMonthlyRoomReservations(LocalDateTime date);
 }

@@ -13,15 +13,13 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.temporal.WeekFields;
+import java.util.*;
 
 // TODO:
 //  integrate google calendar api,
-//  use lombok,
-//  change controllers to return page, not list
+//  change controllers to return page, not list, group it by current day, week and month
+//  add method to get reservation by date, week and month
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
