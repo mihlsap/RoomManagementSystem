@@ -3,7 +3,6 @@ package com.example.RoomManagementSystem.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Setter
