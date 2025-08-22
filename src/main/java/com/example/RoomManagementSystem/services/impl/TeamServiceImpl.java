@@ -32,17 +32,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public Team createTeam(Team team) {
 
-        if (Objects.isNull(team))
-            throw new IllegalArgumentException("Team cannot be null");
-
-        if (team.getId() != null)
-            throw new IllegalArgumentException("Team already has an id!");
-
-        if (team.getName() == null || team.getName().isEmpty())
-            throw new IllegalArgumentException("Team name cannot be empty!");
-
-        if (team.getSize() == null || team.getSize() == 0)
-            throw new IllegalArgumentException("Team size cannot be empty!");
+        validateInput(team);
 
         return teamRepository.save(new Team(
                 null,
@@ -74,5 +64,20 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void deleteTeam(UUID id) {
         teamRepository.deleteById(id);
+    }
+
+    private void validateInput(Team team) {
+
+        if (Objects.isNull(team))
+            throw new IllegalArgumentException("Team cannot be null");
+
+        if (team.getId() != null)
+            throw new IllegalArgumentException("Team already has an id!");
+
+        if (team.getName() == null || team.getName().isEmpty())
+            throw new IllegalArgumentException("Team name cannot be empty!");
+
+        if (team.getSize() == null || team.getSize() == 0)
+            throw new IllegalArgumentException("Team size cannot be empty!");
     }
 }

@@ -32,20 +32,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room addRoom(Room room) {
 
-        if (Objects.isNull(room))
-            throw new IllegalArgumentException("Room cannot be null!");
-
-        if (room.getId() != null)
-            throw new IllegalArgumentException("Room already has an ID!");
-
-        if (room.getNumber() == null)
-            throw new IllegalArgumentException("Room number cannot be null!");
-
-        if (room.getFloor() == null)
-            throw new IllegalArgumentException("Room floor cannot be null!");
-
-        if (room.getSeats() == null)
-            throw new IllegalArgumentException("Number of seats cannot be null!");
+        validateInput(room);
 
         return roomRepository.save(new Room(
                 null,
@@ -80,4 +67,21 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.deleteById(id);
     }
 
+    private void validateInput(Room room) {
+
+        if (Objects.isNull(room))
+            throw new IllegalArgumentException("Room cannot be null!");
+
+        if (room.getId() != null)
+            throw new IllegalArgumentException("Room already has an ID!");
+
+        if (room.getNumber() == null)
+            throw new IllegalArgumentException("Room number cannot be null!");
+
+        if (room.getFloor() == null)
+            throw new IllegalArgumentException("Room floor cannot be null!");
+
+        if (room.getSeats() == null)
+            throw new IllegalArgumentException("Number of seats cannot be null!");
+    }
 }
