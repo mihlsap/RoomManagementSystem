@@ -18,24 +18,12 @@ public class UserServiceImpl implements UserService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        System.out.println("Authentication: " + authentication);
-        System.out.println("Class: " + (authentication != null ? authentication.getClass() : "null"));
-
         if (Objects.isNull(authentication) || ! (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken))
             throw new IllegalStateException("No authenticated user found or invalid authentication type!");
 
         Jwt accessToken = jwtAuthenticationToken.getToken();
 
-        if (accessToken.getClaimAsString("preferred_username") == null || accessToken.getClaimAsString("preferred_username").isEmpty())
-            throw new IllegalStateException("No username found!");
-        if (accessToken.getClaimAsString("email") == null || accessToken.getClaimAsString("email").isEmpty())
-            throw new IllegalStateException("No email found!");
-        if (accessToken.getClaimAsString("given_name") == null || accessToken.getClaimAsString("given_name").isEmpty())
-            throw new IllegalStateException("No name found!");
-        if (accessToken.getClaimAsString("family_name") == null || accessToken.getClaimAsString("family_name").isEmpty())
-            throw new IllegalStateException("No surname found!");
-        if (accessToken.getClaimAsString("team_id") == null || accessToken.getClaimAsString("team_id").isEmpty())
-            throw new IllegalStateException("No team id found!");
+        validateInput(accessToken);
 
         return new UserDto(
                 UUID.fromString(accessToken.getSubject()),
@@ -45,5 +33,23 @@ public class UserServiceImpl implements UserService {
                 accessToken.getClaimAsString("email"),
                 UUID.fromString(accessToken.getClaimAsString("team_id"))
         );
+    }
+
+    private void validateInput(Jwt accessToken) {
+
+        if (accessToken.getClaimAsString("preferred_username") == null || accessToken.getClaimAsString("preferred_username").isEmpty())
+            throw new IllegalStateException("No username found!");
+
+        if (accessToken.getClaimAsString("email") == null || accessToken.getClaimAsString("email").isEmpty())
+            throw new IllegalStateException("No email found!");
+
+        if (accessToken.getClaimAsString("given_name") == null || accessToken.getClaimAsString("given_name").isEmpty())
+            throw new IllegalStateException("No name found!");
+
+        if (accessToken.getClaimAsString("family_name") == null || accessToken.getClaimAsString("family_name").isEmpty())
+            throw new IllegalStateException("No surname found!");
+
+        if (accessToken.getClaimAsString("team_id") == null || accessToken.getClaimAsString("team_id").isEmpty())
+            throw new IllegalStateException("No team id found!");
     }
 }

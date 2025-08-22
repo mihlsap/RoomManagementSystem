@@ -21,6 +21,8 @@ import java.util.UUID;
 // TODO:
 //  integrate google calendar api,
 //  allow adding reservations only when the given room is available at a given time
+//  use lombok,
+//  change controllers to return page, not list
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -51,30 +53,24 @@ public class ReservationServiceImpl implements ReservationService {
 
         UserDto currentUser = userService.getCurrentUser();
 
-        if (Objects.isNull(reservation))
-            throw new IllegalArgumentException("Reservation cannot be null!");
+        validateInput(reservation);
 
-        if (reservation.getTitle() == null)
-            throw new IllegalStateException("Reservation title is required!");
+        if (!isTimeSlotAvailable(reservation.getStart(), reservation.getEnd(), reservation.getRoomId()))
+            throw new IllegalStateException("Time slot is not available for chosen room!");
 
-        if (reservation.getStart() == null)
-            throw new IllegalStateException("Reservation start date is required!");
+        Room chosenRoom = roomRepository
+                .findById(reservation.getRoomId())
+                .orElseThrow(() -> new IllegalStateException("Room not found!"));
 
-        if (reservation.getEnd() == null)
-            throw new IllegalStateException("Reservation end date is required!");
+        Team userTeam = teamRepository
+                .findById(currentUser.teamId())
+                .orElseThrow(() -> new IllegalStateException("Team not found!"));
 
-        if (reservation.getRoomId() == null)
-            throw new IllegalStateException("Reservation room number is required!");
-
-        if (reservation.getEnd().isBefore(reservation.getStart()))
-            throw new IllegalStateException("Reservation cannot end before it starts!");
-
-        Room chosenRoom = roomRepository.findById(reservation.getRoomId()).orElse(null);
-        Team userTeam = teamRepository.findById(currentUser.teamId()).orElse(null);
-        assert chosenRoom != null;
-        assert userTeam != null;
         if (userTeam.getSize() > chosenRoom.getSeats())
-            System.err.println("Room may not accommodate whole team!");
+            System.out.println("Room may not accommodate whole team!");
+
+        if (!doesTeamAlreadyHaveAMeeting(reservation.getStart(), reservation.getEnd(), userTeam.getId()))
+            System.out.println("Team already has a meeting during that time!");
 
         return reservationRepository.save(new Reservation(
                 null,
@@ -96,47 +92,40 @@ public class ReservationServiceImpl implements ReservationService {
 
         UserDto currentUser = userService.getCurrentUser();
 
-        Reservation existingReservation = reservationRepository
-                .findById(id)
-                .orElseThrow(
-                        () -> new IllegalArgumentException("Reservation not found!")
-                );
+        Reservation existingReservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found!"));
 
-        if (!Objects.equals(existingReservation.getOwnerId(), currentUser.id()))
-            throw new IllegalArgumentException("Cannot modify other users' reservations!");
+        validateOwnership(existingReservation.getOwnerId(), currentUser.id());
 
-        if ((reservation.getStart() != null && reservation.getEnd() != null
-                && reservation.getEnd().isBefore(reservation.getStart())
-        ) || (reservation.getStart() != null && reservation.getEnd() == null
-                    && existingReservation.getEnd().isBefore(reservation.getStart())
-        ) || (reservation.getStart() == null && reservation.getEnd() != null
-                    && reservation.getEnd().isBefore(existingReservation.getStart())
-        )) {
-            throw new IllegalArgumentException("Reservation cannot end before it starts!");
+        if (reservation.getTitle() != null) {
+            existingReservation.setTitle(reservation.getTitle());
         }
 
-        if (reservation.getTitle() != null)
-            existingReservation.setTitle(reservation.getTitle());
-
-        if (reservation.getDescription() != null)
+        if (reservation.getDescription() != null) {
             existingReservation.setDescription(reservation.getDescription());
+        }
 
-        if (reservation.getStart() != null)
-            existingReservation.setStart(reservation.getStart());
-
-        if (reservation.getEnd() != null)
-            existingReservation.setEnd(reservation.getEnd());
+        existingReservation.setUpdated(LocalDateTime.now());
 
         if (reservation.getRoomId() != null)
             existingReservation.setRoomId(reservation.getRoomId());
 
-        if (reservation.getTeamId() != null)
-            existingReservation.setTeamId(reservation.getTeamId());
+        LocalDateTime newStart = reservation.getStart() != null ? reservation.getStart() : existingReservation.getStart();
+        LocalDateTime newEnd = reservation.getEnd() != null ? reservation.getEnd() : existingReservation.getEnd();
 
-        if (Objects.equals(reservation.getOwnerId(), currentUser.id()))
-            existingReservation.setOwnerId(reservation.getOwnerId());
+        if (newEnd.isBefore(newStart)) {
+            throw new IllegalArgumentException("Reservation cannot end before it starts!");
+        }
 
-        existingReservation.setUpdated(LocalDateTime.now());
+        if (!isTimeSlotAvailable(newStart, newEnd, existingReservation.getRoomId(), id)) {
+            throw new IllegalStateException("Time slot is not available for chosen room!");
+        }
+
+        existingReservation.setStart(newStart);
+        existingReservation.setEnd(newEnd);
+
+        if (!doesTeamAlreadyHaveAMeeting(reservation.getStart(), reservation.getEnd(), currentUser.teamId()))
+            System.out.println("Team already has a meeting during that time!");
 
         return reservationRepository.save(existingReservation);
     }
@@ -158,8 +147,7 @@ public class ReservationServiceImpl implements ReservationService {
                         () -> new IllegalArgumentException("Reservation not found!")
                 );
 
-        if (!Objects.equals(existingReservation.getOwnerId(), currentUser.id()))
-            throw new IllegalArgumentException("Cannot modify other users' reservations!");
+        validateOwnership(existingReservation.getOwnerId(), currentUser.id());
 
         reservationRepository.deleteById(id);
     }
@@ -183,5 +171,54 @@ public class ReservationServiceImpl implements ReservationService {
     public List<Reservation> getCurrentUserReservations() {
         UserDto currentUser = userService.getCurrentUser();
         return reservationRepository.findByOwnerId(currentUser.id());
+    }
+
+    private boolean isOverlapping(LocalDateTime start, LocalDateTime end, Reservation reservation) {
+        return start.isBefore(reservation.getEnd()) && end.isAfter(reservation.getStart());
+    }
+
+    private boolean isTimeSlotAvailable(LocalDateTime start, LocalDateTime end, UUID roomId) {
+        return getRoomReservations(roomId)
+                .stream()
+                .noneMatch(reservation ->
+                        isOverlapping(start, end, reservation));
+    }
+
+    private boolean isTimeSlotAvailable(LocalDateTime start, LocalDateTime end, UUID roomId, UUID reservationId) {
+        return getRoomReservations(roomId)
+                .stream()
+                .filter(reservation -> !reservation.getId().equals(reservationId))
+                .noneMatch(reservation -> isOverlapping(start, end, reservation));
+    }
+
+    private void validateInput(Reservation reservation) {
+        if (Objects.isNull(reservation))
+            throw new IllegalArgumentException("Reservation cannot be null!");
+
+        if (reservation.getTitle() == null)
+            throw new IllegalStateException("Reservation title is required!");
+
+        if (reservation.getStart() == null)
+            throw new IllegalStateException("Reservation start date is required!");
+
+        if (reservation.getEnd() == null)
+            throw new IllegalStateException("Reservation end date is required!");
+
+        if (reservation.getRoomId() == null)
+            throw new IllegalStateException("Reservation room number is required!");
+
+        if (reservation.getEnd().isBefore(reservation.getStart()))
+            throw new IllegalStateException("Reservation end cannot be before its start!");
+    }
+
+    private void validateOwnership(UUID ownerId, UUID userId) {
+        if (!Objects.equals(ownerId, userId))
+            throw new IllegalArgumentException("Cannot modify other users' reservations!");
+    }
+
+    private boolean doesTeamAlreadyHaveAMeeting(LocalDateTime start, LocalDateTime end, UUID teamId) {
+        return getTeamReservations(teamId)
+                .stream()
+                .noneMatch(reservation -> isOverlapping(start, end, reservation));
     }
 }
