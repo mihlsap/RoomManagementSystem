@@ -21,7 +21,8 @@ import java.util.UUID;
 // TODO:
 //  integrate google calendar api,
 //  use lombok,
-//  change controllers to return page, not list
+//  change controllers to return page, not list,
+//  create new client in keycloak for users, so that admin can have no teamId assigned
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
