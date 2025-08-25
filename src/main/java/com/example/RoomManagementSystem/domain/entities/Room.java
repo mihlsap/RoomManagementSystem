@@ -1,5 +1,6 @@
 package com.example.RoomManagementSystem.domain.entities;
 
+import com.example.RoomManagementSystem.domain.enums.RoomSize;
 import jakarta.persistence.*;
 import lombok.*;
 

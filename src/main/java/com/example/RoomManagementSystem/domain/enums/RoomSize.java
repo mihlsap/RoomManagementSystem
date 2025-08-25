@@ -1,4 +1,4 @@
-package com.example.RoomManagementSystem.domain.entities;
+package com.example.RoomManagementSystem.domain.enums;
 
 public enum RoomSize {
     SMALL,

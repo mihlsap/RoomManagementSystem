@@ -23,7 +23,7 @@ import java.util.UUID;
 
 // TODO:
 //  integrate google calendar api,
-//  change controllers to return page, not list, group it by current day, week and month
+//  change controllers to return page, not list, group it by ascending order
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
