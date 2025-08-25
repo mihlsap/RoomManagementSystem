@@ -205,6 +205,17 @@ public class ReservationController {
                 .toList();
     }
 
+    @GetMapping("/users/{user_id}/by-week")
+    public List<ReservationDto> getUserReservationsByWeek(@PathVariable("user_id") UUID id,
+                                                          @RequestParam("year") int year,
+                                                          @RequestParam("week") int week) {
+        return reservationService
+                .getUserReservationsByWeek(year, week, id)
+                .stream()
+                .map(reservationMapper::toDto)
+                .toList();
+    }
+
     @GetMapping("/teams/{team_id}/by-week")
     public List<ReservationDto> getTeamReservationsByWeek(@PathVariable("team_id") UUID id,
                                                           @RequestParam("year") int year,
