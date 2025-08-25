@@ -10,6 +10,7 @@ import com.example.RoomManagementSystem.repositories.TeamRepository;
 import com.example.RoomManagementSystem.services.ReservationService;
 import com.example.RoomManagementSystem.services.UserService;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,8 +24,10 @@ import java.util.UUID;
 
 // TODO:
 //  integrate google calendar api,
-//  change controllers to return page, not list, group it by ascending order
+//  change controllers to return page, not list, group it by ascending order,
+//  make methods return ResponseEntity on top of throwing exceptions
 
+@AllArgsConstructor
 @Service
 public class ReservationServiceImpl implements ReservationService {
 
@@ -35,13 +38,6 @@ public class ReservationServiceImpl implements ReservationService {
     private final TeamRepository teamRepository;
 
     private final UserService userService;
-
-    public ReservationServiceImpl(ReservationRepository reservationRepository, RoomRepository roomRepository, TeamRepository teamRepository, UserService userService) {
-        this.reservationRepository = reservationRepository;
-        this.roomRepository = roomRepository;
-        this.teamRepository = teamRepository;
-        this.userService = userService;
-    }
 
     @Override
     public List<Reservation> getAllReservations() {

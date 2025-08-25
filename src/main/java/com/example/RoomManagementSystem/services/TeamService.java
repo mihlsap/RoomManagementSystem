@@ -1,13 +1,14 @@
 package com.example.RoomManagementSystem.services;
 
 import com.example.RoomManagementSystem.domain.entities.Team;
+import com.example.RoomManagementSystem.domain.pagination.PaginationRequest;
+import com.example.RoomManagementSystem.domain.pagination.PagingResult;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface TeamService {
 
-    List<Team> getAllTeams();
+    PagingResult<Team> getAllTeams(PaginationRequest paginationRequest);
 
     Team getTeamById(UUID id);
 

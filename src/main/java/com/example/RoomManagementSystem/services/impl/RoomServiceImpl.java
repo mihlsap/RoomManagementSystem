@@ -1,12 +1,16 @@
 package com.example.RoomManagementSystem.services.impl;
 
 import com.example.RoomManagementSystem.domain.entities.Room;
+import com.example.RoomManagementSystem.domain.pagination.PaginationRequest;
+import com.example.RoomManagementSystem.domain.pagination.PaginationUtils;
+import com.example.RoomManagementSystem.domain.pagination.PagingResult;
 import com.example.RoomManagementSystem.repositories.RoomRepository;
 import com.example.RoomManagementSystem.services.RoomService;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,8 +24,17 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<Room> getAllRooms() {
-        return roomRepository.findAll();
+    public PagingResult<Room> getAllRooms(PaginationRequest paginationRequest) {
+        final Pageable pageable = PaginationUtils.getPageable(paginationRequest);
+        final Page<Room> rooms = roomRepository.findAll(pageable);
+        return new PagingResult<>(
+                rooms.getContent(),
+                rooms.getTotalPages(),
+                rooms.getTotalElements(),
+                rooms.getSize(),
+                rooms.getNumber(),
+                rooms.isEmpty()
+        );
     }
 
     @Override

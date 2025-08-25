@@ -1,12 +1,16 @@
 package com.example.RoomManagementSystem.services.impl;
 
 import com.example.RoomManagementSystem.domain.entities.Team;
+import com.example.RoomManagementSystem.domain.pagination.PaginationRequest;
+import com.example.RoomManagementSystem.domain.pagination.PaginationUtils;
+import com.example.RoomManagementSystem.domain.pagination.PagingResult;
 import com.example.RoomManagementSystem.repositories.TeamRepository;
 import com.example.RoomManagementSystem.services.TeamService;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,8 +24,17 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<Team> getAllTeams() {
-        return teamRepository.findAll();
+    public PagingResult<Team> getAllTeams(PaginationRequest paginationRequest) {
+        final Pageable pageable = PaginationUtils.getPageable(paginationRequest);
+        final Page<Team> teams = teamRepository.findAll(pageable);
+        return new PagingResult<>(
+                teams.getContent(),
+                teams.getTotalPages(),
+                teams.getTotalElements(),
+                teams.getSize(),
+                teams.getNumber(),
+                teams.isEmpty()
+        );
     }
 
     @Override

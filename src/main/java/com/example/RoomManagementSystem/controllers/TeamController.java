@@ -1,11 +1,14 @@
 package com.example.RoomManagementSystem.controllers;
 
 import com.example.RoomManagementSystem.domain.entities.Team;
+import com.example.RoomManagementSystem.domain.pagination.PaginationRequest;
+import com.example.RoomManagementSystem.domain.pagination.PagingResult;
 import com.example.RoomManagementSystem.services.TeamService;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,8 +24,15 @@ public class TeamController {
 
     @PreAuthorize("permitAll()")
     @GetMapping("all")
-    public List<Team> getAllTeams() {
-        return teamService.getAllTeams();
+    public ResponseEntity<PagingResult<Team>> getAllTeams(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction
+    ) {
+        final PaginationRequest paginationRequest = new PaginationRequest(page, size, sortBy, direction);
+        final PagingResult<Team> teams =  teamService.getAllTeams(paginationRequest);
+        return ResponseEntity.ok(teams);
     }
 
     @PreAuthorize("permitAll()")
