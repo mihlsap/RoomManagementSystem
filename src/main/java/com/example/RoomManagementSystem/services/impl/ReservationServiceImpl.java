@@ -187,19 +187,25 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<Reservation> getUserReservationsByDate(LocalDate date, UUID id) {
         return getReservationsByDate(date)
-                .stream().filter(reservation -> reservation.getOwnerId().equals(id)).toList();
+                .stream()
+                .filter(reservation -> reservation.getOwnerId().equals(id))
+                .toList();
     }
 
     @Override
     public List<Reservation> getTeamReservationsByDate(LocalDate date, UUID id) {
         return getReservationsByDate(date)
-                .stream().filter(reservation -> reservation.getTeamId().equals(id)).toList();
+                .stream()
+                .filter(reservation -> reservation.getTeamId().equals(id))
+                .toList();
     }
 
     @Override
     public List<Reservation> getRoomReservationsByDate(LocalDate date, UUID id) {
         return getReservationsByDate(date)
-                .stream().filter(reservation -> reservation.getRoomId().equals(id)).toList();
+                .stream()
+                .filter(reservation -> reservation.getRoomId().equals(id))
+                .toList();
     }
 
     @Override

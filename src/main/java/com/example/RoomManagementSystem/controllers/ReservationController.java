@@ -93,7 +93,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all/by-date")
     public List<ReservationDto> getReservationsByDate(@RequestParam(name = "date") LocalDate date) {
         return reservationService
                 .getReservationsByDate(date)
@@ -102,7 +102,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/my-reservations")
+    @GetMapping("/my-reservations/by-date")
     public List<ReservationDto> getCurrentUserReservationsByDate(@RequestParam(name = "date") LocalDate date) {
         return reservationService
                 .getCurrentUserReservationsByDate(date)
@@ -111,7 +111,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/users/{user_id}")
+    @GetMapping("/users/{user_id}/by-date")
     public List<ReservationDto> getUserReservationsByDate(@RequestParam(name = "date") LocalDate date,
                                                           @PathVariable("user_id") UUID id) {
         return reservationService
@@ -121,7 +121,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/teams/{team_id}")
+    @GetMapping("/teams/{team_id}/by-date")
     public List<ReservationDto> getTeamReservationsByDate(@RequestParam(name = "date") LocalDate date,
                                                           @PathVariable("team_id") UUID id) {
         return reservationService
@@ -131,7 +131,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/rooms/{room_id}")
+    @GetMapping("/rooms/{room_id}/by-date")
     public List<ReservationDto> getRoomReservationsByDate(@RequestParam(name = "date") LocalDate date,
                                                           @PathVariable("room_id") UUID id) {
         return reservationService
@@ -186,7 +186,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all/by-week")
     public List<ReservationDto> getReservationsByWeek(@RequestParam("year") int year, @RequestParam("week") int week) {
         return reservationService
                 .getReservationsByWeek(year, week)
@@ -195,7 +195,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/my-reservations")
+    @GetMapping("/my-reservations/by-week")
     public List<ReservationDto> getCurrentUserReservationsByWeek(@RequestParam("year") int year,
                                                                  @RequestParam("week") int week) {
         return reservationService
@@ -205,7 +205,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/teams/{team_id}")
+    @GetMapping("/teams/{team_id}/by-week")
     public List<ReservationDto> getTeamReservationsByWeek(@PathVariable("team_id") UUID id,
                                                           @RequestParam("year") int year,
                                                           @RequestParam("week") int week) {
@@ -216,7 +216,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/rooms/{room_id}")
+    @GetMapping("/rooms/{room_id}/by-week")
     public List<ReservationDto> getRoomReservationsByWeek(@PathVariable("room_id") UUID id,
                                                           @RequestParam("year") int year,
                                                           @RequestParam("week") int week) {
@@ -227,7 +227,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all/by-month")
     public List<ReservationDto> getReservationsByMonth(@RequestParam("yearMonth") YearMonth yearMonth) {
         return reservationService
                 .getReservationsByMonth(yearMonth)
@@ -236,7 +236,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/my-reservations")
+    @GetMapping("/my-reservations/by-month")
     public List<ReservationDto> getCurrentUserReservationsByMonth(@RequestParam("yearMonth") YearMonth yearMonth) {
         return reservationService
                 .getCurrentUserReservationsByMonth(yearMonth)
@@ -245,7 +245,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/users/{user_id}")
+    @GetMapping("/users/{user_id}/by-month")
     public List<ReservationDto> getUserReservationsByMonth(@PathVariable("user_id") UUID id,
                                                            @RequestParam("yearMonth") YearMonth yearMonth) {
         return reservationService
@@ -255,7 +255,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/teams/{team_id}")
+    @GetMapping("/teams/{team_id}/by-month")
     public List<ReservationDto> getTeamReservationsByMonth(@PathVariable("team_id") UUID id,
                                                            @RequestParam("yearMonth") YearMonth yearMonth) {
         return reservationService
@@ -265,7 +265,7 @@ public class ReservationController {
                 .toList();
     }
 
-    @GetMapping("/rooms/{room_id}")
+    @GetMapping("/rooms/{room_id}/by-month")
     public List<ReservationDto> getRoomReservationsByMonth(@PathVariable("room_id") UUID id,
                                                            @RequestParam("yearMonth") YearMonth yearMonth) {
         return reservationService
