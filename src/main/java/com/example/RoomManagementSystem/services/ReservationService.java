@@ -2,6 +2,8 @@ package com.example.RoomManagementSystem.services;
 
 import com.example.RoomManagementSystem.domain.entities.Reservation;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,38 +28,43 @@ public interface ReservationService {
 
     List<Reservation> getCurrentUserReservations();
 
-// TODO:
-//  maybe later implement these methods
+    List<Reservation> getReservationsByDate(LocalDate date);
 
-//    List<Reservation> getReservationsByDate(LocalDateTime date);
-//
-//    List<Reservation> getUserReservationsByDate(LocalDateTime date, UUID id);
-//
-//    List<Reservation> getTeamReservationsByDate(LocalDateTime date, UUID id);
-//
-//    List<Reservation> getRoomReservationsByDate(LocalDateTime date,  UUID id);
-//
-//    List<Reservation> getTodayReservations();
-//
-//    List<Reservation> getTodayUserReservations(UUID id);
-//
-//    List<Reservation> getTodayTeamReservations(UUID id);
-//
-//    List<Reservation> getTodayRoomReservations(UUID id);
-//
-//    List<Reservation> getWeeklyReservations(LocalDateTime date);
-//
-//    List<Reservation> getWeeklyUserReservations(LocalDateTime date, UUID id);
-//
-//    List<Reservation> getWeeklyTeamReservations(LocalDateTime date);
-//
-//    List<Reservation> getWeeklyRoomReservations(LocalDateTime date);
-//
-//    List<Reservation> getMonthlyReservations(LocalDateTime date);
-//
-//    List<Reservation> getMonthlyUserReservations(LocalDateTime date);
-//
-//    List<Reservation> getMonthlyTeamReservations(LocalDateTime date);
-//
-//    List<Reservation> getMonthlyRoomReservations(LocalDateTime date);
+    List<Reservation> getCurrentUserReservationsByDate(LocalDate date);
+
+    List<Reservation> getUserReservationsByDate(LocalDate date, UUID id);
+
+    List<Reservation> getTeamReservationsByDate(LocalDate date, UUID id);
+
+    List<Reservation> getRoomReservationsByDate(LocalDate date, UUID id);
+
+    List<Reservation> getTodayReservations();
+
+    List<Reservation> getTodayUserReservations(UUID id);
+
+    List<Reservation> getTodayCurrentUserReservations();
+
+    List<Reservation> getTodayTeamReservations(UUID id);
+
+    List<Reservation> getTodayRoomReservations(UUID id);
+
+    List<Reservation> getReservationsByWeek(int year, int week);
+
+    List<Reservation> getUserReservationsByWeek(int year, int week, UUID id);
+
+    List<Reservation> getCurrentUserReservationsByWeek(int year, int week);
+
+    List<Reservation> getTeamReservationsByWeek(int year, int week, UUID id);
+
+    List<Reservation> getRoomReservationsByWeek(int year, int week, UUID id);
+
+    List<Reservation> getReservationsByMonth(YearMonth yearMonth);
+
+    List<Reservation> getUserReservationsByMonth(YearMonth yearMonth, UUID id);
+
+    List<Reservation> getCurrentUserReservationsByMonth(YearMonth yearMonth);
+
+    List<Reservation> getTeamReservationsByMonth(YearMonth yearMonth, UUID id);
+
+    List<Reservation> getRoomReservationsByMonth(YearMonth yearMonth, UUID id);
 }

@@ -12,7 +12,10 @@ import com.example.RoomManagementSystem.services.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.WeekFields;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,7 +24,6 @@ import java.util.UUID;
 // TODO:
 //  integrate google calendar api,
 //  change controllers to return page, not list, group it by current day, week and month
-//  add method to get reservation by date, week and month
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -170,6 +172,146 @@ public class ReservationServiceImpl implements ReservationService {
     public List<Reservation> getCurrentUserReservations() {
         UserDto currentUser = userService.getCurrentUser();
         return reservationRepository.findByOwnerId(currentUser.id());
+    }
+
+    @Override
+    public List<Reservation> getReservationsByDate(LocalDate date) {
+        return getAllReservations()
+                .stream()
+                .filter(reservation -> date
+                        .equals(reservation.getStart().toLocalDate()))
+                .toList();
+    }
+
+
+    @Override
+    public List<Reservation> getUserReservationsByDate(LocalDate date, UUID id) {
+        return getReservationsByDate(date)
+                .stream().filter(reservation -> reservation.getOwnerId().equals(id)).toList();
+    }
+
+    @Override
+    public List<Reservation> getTeamReservationsByDate(LocalDate date, UUID id) {
+        return getReservationsByDate(date)
+                .stream().filter(reservation -> reservation.getTeamId().equals(id)).toList();
+    }
+
+    @Override
+    public List<Reservation> getRoomReservationsByDate(LocalDate date, UUID id) {
+        return getReservationsByDate(date)
+                .stream().filter(reservation -> reservation.getRoomId().equals(id)).toList();
+    }
+
+    @Override
+    public List<Reservation> getTodayReservations() {
+        return getReservationsByDate(LocalDate.now());
+    }
+
+    @Override
+    public List<Reservation> getTodayUserReservations(UUID id) {
+        return getUserReservationsByDate(LocalDate.now(), id);
+    }
+
+    @Override
+    public List<Reservation> getTodayTeamReservations(UUID id) {
+        return getTeamReservationsByDate(LocalDate.now(), id);
+    }
+
+    @Override
+    public List<Reservation> getTodayRoomReservations(UUID id) {
+        return getRoomReservationsByDate(LocalDate.now(), id);
+    }
+
+    @Override
+    public List<Reservation> getReservationsByWeek(int year, int week) {
+        return getAllReservations()
+                .stream()
+                .filter(reservation -> reservation.getStart()
+                        .get(WeekFields.ISO.weekOfYear()) == week && reservation.getStart().getYear() == year)
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getUserReservationsByWeek(int year, int week, UUID id) {
+        return getReservationsByWeek(year, week)
+                .stream()
+                .filter(reservation -> reservation.getOwnerId().equals(id))
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getTeamReservationsByWeek(int year, int week, UUID id) {
+        return getReservationsByWeek(year, week)
+                .stream()
+                .filter(reservation -> reservation.getTeamId().equals(id))
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getRoomReservationsByWeek(int year, int week, UUID id) {
+        return getReservationsByWeek(year, week)
+                .stream()
+                .filter(reservation -> reservation.getRoomId().equals(id))
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getReservationsByMonth(YearMonth yearMonth) {
+        return getAllReservations()
+                .stream()
+                .filter(reservation ->
+                        reservation.getStart().getMonth().equals(yearMonth.getMonth())
+                                && reservation.getStart().getYear() == yearMonth.getYear()
+                )
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getUserReservationsByMonth(YearMonth yearMonth, UUID id) {
+        return getReservationsByMonth(yearMonth)
+                .stream()
+                .filter(reservation -> reservation.getOwnerId().equals(id))
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getTeamReservationsByMonth(YearMonth yearMonth, UUID id) {
+        return getReservationsByMonth(yearMonth)
+                .stream()
+                .filter(reservation -> reservation.getTeamId().equals(id))
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getRoomReservationsByMonth(YearMonth yearMonth, UUID id) {
+        return getReservationsByMonth(yearMonth)
+                .stream()
+                .filter(reservation -> reservation.getRoomId().equals(id))
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getCurrentUserReservationsByDate(LocalDate date) {
+        UserDto currentUser = userService.getCurrentUser();
+        return getUserReservationsByDate(date, currentUser.id());
+    }
+
+    @Override
+    public List<Reservation> getTodayCurrentUserReservations() {
+        UserDto currentUser = userService.getCurrentUser();
+        return getTodayUserReservations(currentUser.id());
+    }
+
+    @Override
+    public List<Reservation> getCurrentUserReservationsByWeek(int year, int week) {
+        UserDto currentUser = userService.getCurrentUser();
+        return getUserReservationsByWeek(year, week, currentUser.id());
+    }
+
+    @Override
+    public List<Reservation> getCurrentUserReservationsByMonth(YearMonth yearMonth) {
+        UserDto currentUser = userService.getCurrentUser();
+        return getUserReservationsByMonth(yearMonth, currentUser.id());
     }
 
     private boolean isOverlapping(LocalDateTime start, LocalDateTime end, Reservation reservation) {
